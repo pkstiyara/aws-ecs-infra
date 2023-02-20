@@ -1,6 +1,6 @@
 [
     {
-      "name": "binpipe-devops",
+      "name": "pollpapa-dev-container",
       "image": "879566836351.dkr.ecr.us-east-1.amazonaws.com/workshop:latest",
       "cpu": 10,
       "memory": 256,

@@ -78,10 +78,88 @@ resource "aws_route_table" "public-rt" {
 
 ## Route Table Association 
 
-resource "aws_route_table_association" "public-route-association"{
+resource "aws_route_table_association" "public-1"{
     subnet_id = aws_subnet.public-subnet-1.id
     route_table_id = aws_route_table.public-rt.id
 }
+
+# Route table association for 2nd Subnet
+
+resource "aws_route_table_association" "public-2" {
+  subnet_id = aws_subnet.public-subnet-2.id
+  route_table_id = aws_route_table.public-rt.id
+}
+
+# # ********************************************************************************************************
+
+# # Comment this out if not using the NAT GATEWAY
+
+# ########################################################
+# ##                  PRIVATE SUBNET AND NAT GATEWAY 
+# ########################################################
+
+# #########################################################
+# #               ELASTIC IP
+# ##########################################################
+# resource "aws_eip" "nat-gateway-eip" {
+#   vpc = true
+
+#   tags = {
+#     Name = "nat-gateway-eip"
+#   }
+# }
+
+# #########################################################
+# #               NAT GATEWAY
+# ##########################################################
+
+# resource "aws_nat_gateway" "nat-gateway" {
+#   allocation_id = aws_eip.nat-gateway-eip.id
+#   subnet_id     = aws_subnet.public-subnet-1.id
+
+#   tags = {
+#     Name = "nat-gateway"
+#   }
+# }
+
+# ########################################################################
+# #                        ROUTE TABLE FOR PRIVATE SUBNETS
+# ########################################################################
+
+# resource "aws_route_table" "private-rt" {
+#   vpc_id = aws_vpc.main.id
+
+#   tags = {
+#     Name = "Private-Route-Table"
+#   }
+# }
+
+# # Route table association for 1st Private Subnet
+
+# resource "aws_route_table_association" "private-1"{
+#     subnet_id = aws_subnet.private-subnet-1.id
+#     route_table_id = aws_route_table.private-rt.id
+# }
+
+# # Route table association for 2nd Private Subnet
+
+# resource "aws_route_table_association" "private-2" {
+#   subnet_id = aws_subnet.private-subnet-2.id
+#   route_table_id = aws_route_table.private-rt.id
+# }
+
+# # Route for private subnet traffic to use NAT gateway
+
+# resource "aws_route" "private-subnets-to-nat-gateway" {
+#   route_table_id = aws_route_table.private-rt.id
+#   cidr_block     = "0.0.0.0/0"
+#   nat_gateway_id = aws_nat_gateway.nat-gateway.id
+# }
+
+
+# # Comment out above if not using the NAT GATEWAY
+# #*******************************************************************************************
+
 
 ########################################################################
 #                        PRIVATE SUBNET - 1
@@ -145,3 +223,4 @@ resource "aws_security_group" "dev-sg" {
         Name = "pollpapa-sg-dev"
     }
 }
+
