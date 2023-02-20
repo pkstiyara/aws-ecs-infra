@@ -4,27 +4,42 @@
 #############################################################
 
 resource "aws_vpc" "main" {
-  cidr_block       = "10.0.0.0/16"
+  cidr_block       = "172.16.0.0/16"
   instance_tenancy = "default"
   enable_dns_support = true
   enable_dns_hostnames = true
 
   tags = {
-    Name = "main"
+    Name = "pollpapa-dev-vpc"
   }
 }
 
 ########################################################################
-#                        PUBLIC SUBNET
+#                        PUBLIC SUBNET - 1
 ########################################################################
-resource "aws_subnet" "public-subnet" {
+resource "aws_subnet" "public-subnet-1" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.26.1.0/24"
+  cidr_block = "172.16.10.0/24"
   map_public_ip_on_launch = true
   availability_zone = "us-east-1a"
 
   tags = {
-    Name = "Public-Subnet-1"
+    Name = "public-subnet-1"
+  }
+}
+
+
+########################################################################
+#                        PUBLIC SUBNET - 2
+########################################################################
+resource "aws_subnet" "public-subnet-2" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "172.16.20.0/24"
+  map_public_ip_on_launch = true
+  availability_zone = "us-east-1b"
+
+  tags = {
+    Name = "public-subnet-2"
   }
 }
 
@@ -36,7 +51,7 @@ resource "aws_internet_gateway" "dev-igw" {
     vpc_id = aws_vpc.main.id
 
     tags ={
-        Name = "Dev-Internet-Gateway"
+        Name = "pollpapa-internet-gateway"
     }
   
 }
@@ -56,7 +71,7 @@ resource "aws_route_table" "public-rt" {
         gateway_id = aws_internet_gateway.dev-igw.id 
     }
     
-    tags {
+    tags = {
         Name = "Public-Route-Table"
     }
 }
@@ -64,21 +79,35 @@ resource "aws_route_table" "public-rt" {
 ## Route Table Association 
 
 resource "aws_route_table_association" "public-route-association"{
-    subnet_id = aws_subnet.public-subnet.id
+    subnet_id = aws_subnet.public-subnet-1.id
     route_table_id = aws_route_table.public-rt.id
 }
 
 ########################################################################
-#                        PRIVATE SUBNET
+#                        PRIVATE SUBNET - 1
 ########################################################################
 
-resource "aws_subnet" "private-subnet" {
+resource "aws_subnet" "private-subnet-1" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.26.10.0/24"
+  cidr_block = "172.16.1.0/24"
 
 
   tags = {
     Name = "Private-Subnet-1"
+  }
+}
+
+########################################################################
+#                        PRIVATE SUBNET - 2
+########################################################################
+
+resource "aws_subnet" "private-subnet-2" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "172.16.2.0/24"
+
+
+  tags = {
+    Name = "Private-Subnet-2"
   }
 }
 
@@ -87,7 +116,7 @@ resource "aws_subnet" "private-subnet" {
 #                        SECURITY GROUP
 ########################################################################
 
-resource "aws_security_group" "ssh-allowed" {
+resource "aws_security_group" "dev-sg" {
     vpc_id = aws_vpc.main.id
     
     egress {
@@ -112,7 +141,7 @@ resource "aws_security_group" "ssh-allowed" {
         protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
-    tags {
-        Name = "ssh-and-HTTP-allowed"
+    tags = {
+        Name = "pollpapa-sg-dev"
     }
 }
